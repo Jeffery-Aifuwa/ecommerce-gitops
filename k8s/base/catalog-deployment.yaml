@@ -20,5 +20,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: store-config
+            - secretRef:
+                name: store-secrets
           ports:
             - containerPort: 5678

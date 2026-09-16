@@ -13,3 +13,8 @@ configMapGenerator:
     literals:
       - STORE_TITLE="Default Store"
       - CATALOG_ENV="base"
+
+secretGenerator:
+  - name: store-secrets
+    literals:
+      - CATALOG_API_KEY="base-catalog-secret-key"
