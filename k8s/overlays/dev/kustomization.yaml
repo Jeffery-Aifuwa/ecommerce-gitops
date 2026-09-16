@@ -8,6 +8,13 @@ resources:
 
 namePrefix: dev-
 
+configMapGenerator:
+  - name: store-config
+    behavior: merge
+    literals:
+      - STORE_TITLE="Jeff's Store [DEV]"
+      - CATALOG_ENV="development"
+
 patches:
   - target:
       kind: Deployment

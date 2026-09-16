@@ -8,6 +8,13 @@ resources:
 
 namePrefix: prod-
 
+configMapGenerator:
+  - name: store-config
+    behavior: merge
+    literals:
+      - STORE_TITLE="Jeff's Flagship Store [PROD]"
+      - CATALOG_ENV="production"
+
 patches:
   - target:
       kind: Deployment
