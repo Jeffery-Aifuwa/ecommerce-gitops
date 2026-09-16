@@ -6,7 +6,7 @@ metadata:
   name: store-ui
   namespace: store-dev
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: store-ui
