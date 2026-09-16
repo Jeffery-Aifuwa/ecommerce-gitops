@@ -5,3 +5,5 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - catalog-deployment.yaml
+  - catalog-service.yaml
