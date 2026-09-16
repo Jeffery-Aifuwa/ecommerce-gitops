@@ -17,5 +17,8 @@ spec:
           image: hashicorp/http-echo:latest
           args:
             - "-text={\"service\":\"catalog\",\"status\":\"healthy\",\"items\":[\"Keyboard\",\"Mouse\",\"Monitor\"]}"
+          envFrom:
+            - configMapRef:
+                name: store-config
           ports:
             - containerPort: 5678
