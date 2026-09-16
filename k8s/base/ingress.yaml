@@ -2,17 +2,24 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: store-ingress
-  namespace: store-dev
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
-  - http:
-      paths:
-      - backend:
-          service:
-            name: store-ui-svc
-            port:
-              number: 80
-        path: /
-        pathType: Exact
-status:
-  loadBalancer: {}
+    - host: store.local
+      http:
+        paths:
+          - path: /api/catalog
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-api-svc
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: store-ui-svc
+                port:
+                  number: 80
