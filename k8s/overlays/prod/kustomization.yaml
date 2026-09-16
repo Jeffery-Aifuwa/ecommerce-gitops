@@ -16,3 +16,10 @@ patches:
       - op: replace
         path: /spec/replicas
         value: 3
+  - target:
+      kind: Ingress
+      name: store-ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: store.local
