@@ -39,7 +39,7 @@ spec:
               drop:
                 - ALL
           args:
-            - "-text={\"service\":\"catalog\",\"status\":\"healthy\",\"items\":[\"Keyboard\",\"Mouse\",\"Monitor\"]}"
+            - "-text=# HELP catalog_items_total Total items in catalog\n# TYPE catalog_items_total gauge\ncatalog_items_total 3\n# HELP catalog_up Catalog service health status\n# TYPE catalog_up gauge\ncatalog_up 1\n"
           envFrom:
             - configMapRef:
                 name: store-config
