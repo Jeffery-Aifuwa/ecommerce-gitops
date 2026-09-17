@@ -1,0 +1,18 @@
+# Build artifacts & compiled manifests
+*-build.yaml
+*.build.yaml
+
+# Unencrypted raw secrets
+*plain*.yaml
+*raw*.yaml
+
+# Cluster and local configs
+*.kubeconfig
+kubeconfig*
+.k3d/
+
+# OS and Editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
