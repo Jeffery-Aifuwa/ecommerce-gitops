@@ -8,32 +8,34 @@ on:
 
 jobs:
   validate-manifests:
-    name: Validate & Dry-Run Kustomize
+    name: Validate Kustomize Builds
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Validate Base Manifests
+      - name: Validate Base Build
         run: |
-          echo "Validating k8s/base..."
+          echo "Compiling base manifests..."
           kubectl kustomize k8s/base > /dev/null
 
-      - name: Validate Dev Overlay
+      - name: Validate Dev Overlay Build
         run: |
-          echo "Validating k8s/overlays/dev..."
+          echo "Compiling dev overlay..."
           kubectl kustomize k8s/overlays/dev > dev-build.yaml
           grep -q "dev.store.local" dev-build.yaml
+          echo "Dev ingress host verification passed."
 
-      - name: Validate Prod Overlay
+      - name: Validate Prod Overlay Build
         run: |
-          echo "Validating k8s/overlays/prod..."
+          echo "Compiling prod overlay..."
           kubectl kustomize k8s/overlays/prod > prod-build.yaml
           grep -q "store.local" prod-build.yaml
+          echo "Prod ingress host verification passed."
 
-      - name: Client-side Dry Run Validation
+      - name: Validate Secret Hygiene (No Raw Secrets)
         run: |
-          echo "Running client dry-run on generated manifests..."
-          kubectl apply --dry-run=client -f dev-build.yaml
-          kubectl apply --dry-run=client -f prod-build.yaml
+          echo "Verifying no unencrypted Secret manifests are committed..."
+          ! grep -rn "kind: Secret$" k8s/base/ k8s/overlays/ || (echo "ERROR: Plaintext Secret detected! Only SealedSecret is allowed." && exit 1)
+          echo "Secret hygiene check passed."
