@@ -10,14 +10,10 @@ resources:
   - catalog-hpa.yaml
   - catalog-networkpolicy.yaml
   - catalog-pdb.yaml
+  - sealed-secret.yaml
 
 configMapGenerator:
   - name: store-config
     literals:
       - STORE_TITLE="Default Store"
       - CATALOG_ENV="base"
-
-secretGenerator:
-  - name: store-secrets
-    literals:
-      - CATALOG_API_KEY="base-catalog-secret-key"
