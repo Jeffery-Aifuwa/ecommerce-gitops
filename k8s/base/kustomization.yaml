@@ -9,6 +9,7 @@ resources:
   - catalog-service.yaml
   - catalog-hpa.yaml
   - catalog-networkpolicy.yaml
+  - catalog-pdb.yaml
 
 configMapGenerator:
   - name: store-config
