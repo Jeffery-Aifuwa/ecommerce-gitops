@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: catalog-api-monitor
+  labels:
+    release: kube-prom
+spec:
+  selector:
+    matchLabels:
+      app: catalog-api
+  endpoints:
+    - port: http
+      path: /
+      interval: 15s

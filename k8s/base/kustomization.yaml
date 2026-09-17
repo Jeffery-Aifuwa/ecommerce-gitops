@@ -11,6 +11,7 @@ resources:
   - catalog-networkpolicy.yaml
   - catalog-pdb.yaml
   - sealed-secret.yaml
+  - catalog-servicemonitor.yaml
 
 configMapGenerator:
   - name: store-config
