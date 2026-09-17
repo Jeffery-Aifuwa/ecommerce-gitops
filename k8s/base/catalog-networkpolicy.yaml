@@ -13,6 +13,10 @@ spec:
         - podSelector:
             matchLabels:
               app: store-ui
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
       ports:
         - protocol: TCP
           port: 5678
