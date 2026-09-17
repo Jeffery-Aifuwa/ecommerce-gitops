@@ -9,130 +9,592 @@ data:
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Apex Cloud Store</title>
+      <title>Apex Store</title>
+
       <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-      <style>body { font-family: 'Inter', sans-serif; }</style>
+
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+      <style>
+        body {
+          font-family: 'Inter', sans-serif;
+          background: #fafafa;
+        }
+
+        .product-card {
+          transition: all 0.25s ease;
+        }
+
+        .product-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-image {
+          transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image {
+          transform: scale(1.06);
+        }
+      </style>
     </head>
-    <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
-      <!-- Top Navigation -->
-      <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-extrabold text-white text-lg shadow-lg shadow-orange-500/20">
-            A
-          </div>
-          <span class="text-xl font-bold tracking-tight text-white">Apex<span class="text-orange-500">Store</span></span>
-          <span id="env-badge" class="ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-800 text-orange-400 border border-orange-500/30">
-            K8S CLUSTER
-          </span>
-        </div>
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2 text-xs font-medium bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-lg text-emerald-400">
-            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            GitOps Active (Argo CD)
-          </div>
-          <div class="relative cursor-pointer text-slate-300 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+
+    <body class="text-gray-900 min-h-screen">
+
+      <!-- Announcement Bar -->
+      <div class="bg-orange-500 text-white text-center text-xs sm:text-sm font-medium py-2 px-4">
+        🚚 Free shipping on orders over $100
+      </div>
+
+      <!-- Navigation -->
+      <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div class="h-20 flex items-center justify-between">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-extrabold text-xl shadow-md">
+                A
+              </div>
+
+              <div>
+                <div class="text-xl font-extrabold tracking-tight">
+                  Apex<span class="text-orange-500">Store</span>
+                </div>
+                <div class="text-[10px] text-gray-400 font-medium tracking-widest uppercase">
+                  Tech essentials
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+              <a href="#" class="text-gray-900 hover:text-orange-500 transition">
+                Home
+              </a>
+              <a href="#products" class="hover:text-orange-500 transition">
+                Shop
+              </a>
+              <a href="#" class="hover:text-orange-500 transition">
+                New Arrivals
+              </a>
+              <a href="#" class="hover:text-orange-500 transition">
+                Deals
+              </a>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+
+              <!-- Search -->
+              <button class="hidden sm:flex w-10 h-10 rounded-full bg-gray-100 items-center justify-center hover:bg-gray-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-4.35-4.35m2.35-5.65a8 8 0 11-16 0 8 8 0 0116 0z" />
+                </svg>
+              </button>
+
+              <!-- Cart -->
+              <button class="relative w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 text-gray-700"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 2h13M9 19a1 1 0 100 2 1 1 0 000-2zm9 0a1 1 0 100 2 1 1 0 000-2z" />
+                </svg>
+
+                <span id="cart-count"
+                  class="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  0
+                </span>
+              </button>
+
+            </div>
           </div>
         </div>
       </nav>
 
-      <!-- Main Banner -->
-      <header class="py-12 px-6 max-w-7xl mx-auto w-full text-center">
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-          Cloud-Native Hardware & Workstations
-        </h1>
-        <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-          Production microservices platform backed by K3d, Traefik, Sealed Secrets, Prometheus, and Grafana Loki.
-        </p>
-      </header>
 
-      <!-- Products Grid -->
-      <main class="max-w-7xl mx-auto px-6 pb-16 flex-1 w-full">
-        <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
-          <h2 class="text-lg font-bold text-slate-200">Catalog Inventory</h2>
-          <span class="text-xs text-slate-500">Live Scraped by Prometheus</span>
+      <!-- Hero -->
+      <section class="relative overflow-hidden">
+
+        <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 md:py-20">
+
+          <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+            <!-- Hero Text -->
+            <div>
+
+              <span class="inline-flex items-center gap-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-xs font-bold mb-6">
+                ✨ NEW COLLECTION
+              </span>
+
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                Upgrade your
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500">
+                  workspace.
+                </span>
+              </h1>
+
+              <p class="mt-6 text-gray-500 text-base sm:text-lg leading-relaxed max-w-xl">
+                Premium tech essentials designed for developers, creators,
+                gamers, and anyone who loves a great setup.
+              </p>
+
+              <div class="flex flex-wrap gap-4 mt-8">
+
+                <a href="#products"
+                  class="px-7 py-3.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-orange-500 transition shadow-lg">
+                  Shop Collection →
+                </a>
+
+                <button
+                  class="px-7 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:border-orange-300 hover:text-orange-500 transition">
+                  View Deals
+                </button>
+
+              </div>
+
+              <!-- Trust indicators -->
+              <div class="flex flex-wrap gap-6 mt-10 text-xs text-gray-500">
+
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center">
+                    ✓
+                  </span>
+                  Fast shipping
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                    ↩
+                  </span>
+                  Easy returns
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center">
+                    ★
+                  </span>
+                  Quality products
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- Hero Visual -->
+            <div class="relative">
+
+              <div class="absolute -top-10 -right-10 w-64 h-64 bg-orange-200 rounded-full blur-3xl opacity-40"></div>
+              <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-pink-200 rounded-full blur-3xl opacity-40"></div>
+
+              <div class="relative bg-gradient-to-br from-orange-100 via-pink-50 to-purple-100 rounded-[2rem] p-8 md:p-12">
+
+                <div class="text-[9rem] md:text-[12rem] text-center drop-shadow-xl">
+                  ⌨️
+                </div>
+
+                <div class="absolute top-6 right-6 bg-white rounded-2xl px-4 py-3 shadow-lg">
+                  <div class="text-[10px] text-gray-400 uppercase font-bold">
+                    Featured
+                  </div>
+                  <div class="font-extrabold text-gray-900">
+                    $189
+                  </div>
+                </div>
+
+                <div class="absolute bottom-6 left-6 bg-white rounded-2xl px-4 py-3 shadow-lg">
+                  <div class="flex items-center gap-2">
+                    <span class="text-yellow-400">★★★★★</span>
+                    <span class="text-xs font-bold text-gray-700">4.9</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Category Pills -->
+      <section class="bg-white border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-5">
+
+          <div class="flex gap-3 overflow-x-auto">
+
+            <button class="whitespace-nowrap px-5 py-2.5 rounded-full bg-gray-900 text-white text-sm font-semibold">
+              All Products
+            </button>
+
+            <button class="whitespace-nowrap px-5 py-2.5 rounded-full bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-orange-50 hover:text-orange-600 transition">
+              Keyboards
+            </button>
+
+            <button class="whitespace-nowrap px-5 py-2.5 rounded-full bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-orange-50 hover:text-orange-600 transition">
+              Mice
+            </button>
+
+            <button class="whitespace-nowrap px-5 py-2.5 rounded-full bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-orange-50 hover:text-orange-600 transition">
+              Monitors
+            </button>
+
+            <button class="whitespace-nowrap px-5 py-2.5 rounded-full bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-orange-50 hover:text-orange-600 transition">
+              Accessories
+            </button>
+
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- Products -->
+      <main id="products" class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14">
+
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+
+          <div>
+            <p class="text-orange-500 text-xs font-bold uppercase tracking-widest mb-2">
+              Our collection
+            </p>
+
+            <h2 class="text-3xl font-extrabold tracking-tight">
+              Popular right now
+            </h2>
+
+            <p class="text-gray-500 text-sm mt-2">
+              Everything you need for a better desk setup.
+            </p>
+          </div>
+
+          <button class="text-sm font-bold text-orange-500 hover:text-orange-600">
+            View all products →
+          </button>
+
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Card 1 -->
-          <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between hover:border-orange-500/50 transition">
-            <div>
-              <div class="h-44 w-full rounded-xl bg-slate-700/50 mb-4 flex items-center justify-center text-4xl">⌨️</div>
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold text-white">Custom Mechanical Keyboard</h3>
-                <span class="text-orange-400 font-bold">$189</span>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+
+
+          <!-- Product 1 -->
+          <div class="product-card bg-white rounded-3xl border border-gray-100 overflow-hidden">
+
+            <div class="relative bg-gradient-to-br from-orange-100 to-yellow-50 h-64 flex items-center justify-center overflow-hidden">
+
+              <span class="absolute top-4 left-4 bg-orange-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
+                BEST SELLER
+              </span>
+
+              <button class="absolute top-4 right-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition">
+                ♡
+              </button>
+
+              <div class="product-image text-8xl">
+                ⌨️
               </div>
-              <p class="text-xs text-slate-400 leading-relaxed">Hot-swappable switches with sound-dampening foam and custom programmable firmware.</p>
+
             </div>
-            <button onclick="addToCart()" class="mt-5 w-full py-2.5 bg-orange-600 hover:bg-orange-500 font-semibold text-xs rounded-xl transition text-white">
-              Add to Cart
-            </button>
+
+            <div class="p-6">
+
+              <div class="flex items-center gap-1 text-yellow-400 text-xs mb-2">
+                ★★★★★
+                <span class="text-gray-400 ml-1">(128)</span>
+              </div>
+
+              <h3 class="font-bold text-lg">
+                Custom Mechanical Keyboard
+              </h3>
+
+              <p class="text-gray-500 text-sm mt-2 leading-relaxed">
+                Hot-swappable switches with sound-dampening foam and programmable firmware.
+              </p>
+
+              <div class="flex items-center justify-between mt-5">
+
+                <span class="text-2xl font-extrabold">
+                  $189
+                </span>
+
+                <button onclick="addToCart()"
+                  class="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-orange-500 transition">
+                  Add to cart
+                </button>
+
+              </div>
+
+            </div>
           </div>
 
-          <!-- Card 2 -->
-          <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between hover:border-orange-500/50 transition">
-            <div>
-              <div class="h-44 w-full rounded-xl bg-slate-700/50 mb-4 flex items-center justify-center text-4xl">🖱️</div>
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold text-white">Wireless Precision Mouse</h3>
-                <span class="text-orange-400 font-bold">$89</span>
+
+          <!-- Product 2 -->
+          <div class="product-card bg-white rounded-3xl border border-gray-100 overflow-hidden">
+
+            <div class="relative bg-gradient-to-br from-blue-100 to-cyan-50 h-64 flex items-center justify-center overflow-hidden">
+
+              <span class="absolute top-4 left-4 bg-blue-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
+                NEW
+              </span>
+
+              <button class="absolute top-4 right-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition">
+                ♡
+              </button>
+
+              <div class="product-image text-8xl">
+                🖱️
               </div>
-              <p class="text-xs text-slate-400 leading-relaxed">Ultra-low latency wireless sensor with ergonomic grip and dynamic macro mapping.</p>
+
             </div>
-            <button onclick="addToCart()" class="mt-5 w-full py-2.5 bg-orange-600 hover:bg-orange-500 font-semibold text-xs rounded-xl transition text-white">
-              Add to Cart
-            </button>
+
+            <div class="p-6">
+
+              <div class="flex items-center gap-1 text-yellow-400 text-xs mb-2">
+                ★★★★★
+                <span class="text-gray-400 ml-1">(86)</span>
+              </div>
+
+              <h3 class="font-bold text-lg">
+                Wireless Precision Mouse
+              </h3>
+
+              <p class="text-gray-500 text-sm mt-2 leading-relaxed">
+                Ultra-low latency wireless sensor with ergonomic grip and customizable controls.
+              </p>
+
+              <div class="flex items-center justify-between mt-5">
+
+                <span class="text-2xl font-extrabold">
+                  $89
+                </span>
+
+                <button onclick="addToCart()"
+                  class="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-blue-500 transition">
+                  Add to cart
+                </button>
+
+              </div>
+
+            </div>
           </div>
 
-          <!-- Card 3 -->
-          <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between hover:border-orange-500/50 transition">
-            <div>
-              <div class="h-44 w-full rounded-xl bg-slate-700/50 mb-4 flex items-center justify-center text-4xl">🖥️</div>
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold text-white">4K Developer Monitor</h3>
-                <span class="text-orange-400 font-bold">$499</span>
+
+          <!-- Product 3 -->
+          <div class="product-card bg-white rounded-3xl border border-gray-100 overflow-hidden">
+
+            <div class="relative bg-gradient-to-br from-purple-100 to-pink-50 h-64 flex items-center justify-center overflow-hidden">
+
+              <span class="absolute top-4 left-4 bg-purple-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
+                PRO PICK
+              </span>
+
+              <button class="absolute top-4 right-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center shadow-sm hover:text-red-500 transition">
+                ♡
+              </button>
+
+              <div class="product-image text-8xl">
+                🖥️
               </div>
-              <p class="text-xs text-slate-400 leading-relaxed">Color-accurate IPS panel with USB-C 90W power delivery and anti-glare finish.</p>
+
             </div>
-            <button onclick="addToCart()" class="mt-5 w-full py-2.5 bg-orange-600 hover:bg-orange-500 font-semibold text-xs rounded-xl transition text-white">
-              Add to Cart
-            </button>
+
+            <div class="p-6">
+
+              <div class="flex items-center gap-1 text-yellow-400 text-xs mb-2">
+                ★★★★★
+                <span class="text-gray-400 ml-1">(214)</span>
+              </div>
+
+              <h3 class="font-bold text-lg">
+                4K Developer Monitor
+              </h3>
+
+              <p class="text-gray-500 text-sm mt-2 leading-relaxed">
+                Color-accurate IPS panel with USB-C 90W power delivery and anti-glare finish.
+              </p>
+
+              <div class="flex items-center justify-between mt-5">
+
+                <span class="text-2xl font-extrabold">
+                  $499
+                </span>
+
+                <button onclick="addToCart()"
+                  class="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-purple-500 transition">
+                  Add to cart
+                </button>
+
+              </div>
+
+            </div>
           </div>
+
         </div>
       </main>
 
-      <!-- Telemetry Footer -->
-      <footer class="border-t border-slate-800 bg-slate-950 py-6 px-6 text-center text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© 2026 Apex Cloud Store Architecture. Deployed with Argo CD & Kustomize.</p>
-          <div class="flex items-center gap-3">
-            <span class="inline-flex items-center px-2 py-1 rounded bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
-              Host: <span id="host-name" class="ml-1 text-slate-200">evaluating...</span>
+
+      <!-- Promo Banner -->
+      <section class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pb-16">
+
+        <div class="rounded-3xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 p-8 md:p-12 text-white overflow-hidden relative">
+
+          <div class="relative z-10 max-w-xl">
+
+            <span class="text-xs font-bold uppercase tracking-widest opacity-80">
+              Weekend special
             </span>
+
+            <h2 class="text-3xl md:text-4xl font-extrabold mt-2">
+              Build your dream setup.
+            </h2>
+
+            <p class="mt-3 text-white/80 text-sm md:text-base">
+              Save on selected workspace essentials while stocks last.
+            </p>
+
+            <button class="mt-6 bg-white text-gray-900 px-6 py-3 rounded-xl text-sm font-bold hover:bg-gray-100 transition">
+              Shop the deals →
+            </button>
+
           </div>
+
+          <div class="absolute right-5 md:right-20 top-1/2 -translate-y-1/2 text-8xl md:text-9xl opacity-30">
+            💻
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Footer -->
+      <footer class="bg-gray-900 text-gray-400">
+
+        <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-12">
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+
+            <div class="md:col-span-2">
+
+              <div class="flex items-center gap-3 mb-4">
+
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white font-extrabold">
+                  A
+                </div>
+
+                <span class="text-xl font-extrabold text-white">
+                  Apex<span class="text-orange-500">Store</span>
+                </span>
+
+              </div>
+
+              <p class="text-sm leading-relaxed max-w-md">
+                Modern tech essentials for better workspaces,
+                better setups, and better days.
+              </p>
+
+            </div>
+
+
+            <div>
+              <h3 class="text-white font-bold text-sm mb-4">
+                Shop
+              </h3>
+
+              <div class="space-y-3 text-sm">
+                <a href="#" class="block hover:text-white">Keyboards</a>
+                <a href="#" class="block hover:text-white">Mice</a>
+                <a href="#" class="block hover:text-white">Monitors</a>
+                <a href="#" class="block hover:text-white">Accessories</a>
+              </div>
+            </div>
+
+
+            <div>
+              <h3 class="text-white font-bold text-sm mb-4">
+                Support
+              </h3>
+
+              <div class="space-y-3 text-sm">
+                <a href="#" class="block hover:text-white">Contact us</a>
+                <a href="#" class="block hover:text-white">Shipping</a>
+                <a href="#" class="block hover:text-white">Returns</a>
+                <a href="#" class="block hover:text-white">FAQ</a>
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between gap-4 text-xs">
+
+            <p>
+              © 2026 Apex Store. All rights reserved.
+            </p>
+
+            <!-- Keep infrastructure information available but subtle -->
+            <div class="flex items-center gap-3">
+
+              <span class="inline-flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                Store online
+              </span>
+
+              <span id="host-name" class="text-gray-500">
+                cluster-local
+              </span>
+
+            </div>
+
+          </div>
+
         </div>
       </footer>
 
+
       <script>
+
         let count = 0;
+
         function addToCart() {
+
           count++;
+
           document.getElementById('cart-count').innerText = count;
+
+          const cart = document.getElementById('cart-count');
+
+          cart.classList.add('scale-125');
+
+          setTimeout(() => {
+            cart.classList.remove('scale-125');
+          }, 200);
+
         }
+
+
         const host = window.location.hostname;
-        document.getElementById('host-name').innerText = host || 'cluster-local';
-        const badge = document.getElementById('env-badge');
-        if (host.includes('dev')) {
-          badge.innerText = 'ENV: DEVELOPMENT';
-          badge.className = 'ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-950/80 text-amber-400 border border-amber-500/30';
-        } else {
-          badge.innerText = 'ENV: PRODUCTION';
-          badge.className = 'ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30';
-        }
+
+        document.getElementById('host-name').innerText =
+          host || 'cluster-local';
+
       </script>
+
     </body>
     </html>
