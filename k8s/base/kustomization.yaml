@@ -12,6 +12,7 @@ resources:
   - catalog-pdb.yaml
   - sealed-secret.yaml
   - catalog-servicemonitor.yaml
+  - catalog-alertrule.yaml
 
 configMapGenerator:
   - name: store-config

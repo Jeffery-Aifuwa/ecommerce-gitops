@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: catalog-api-alerts
+  labels:
+    release: kube-prom
+spec:
+  groups:
+    - name: catalog-service-health
+      rules:
+        - alert: CatalogServiceDown
+          expr: catalog_up == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Catalog API service is down"
+            description: "The catalog microservice in namespace {{ $labels.namespace }} has reported down (catalog_up == 0) for over 1 minute."
