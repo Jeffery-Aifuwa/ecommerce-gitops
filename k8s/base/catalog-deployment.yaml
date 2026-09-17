@@ -31,3 +31,15 @@ spec:
               memory: "128Mi"
           ports:
             - containerPort: 5678
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5678
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5678
+            initialDelaySeconds: 2
+            periodSeconds: 5
