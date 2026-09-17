@@ -1,23 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: store-ui
   name: store-ui
-  namespace: store-dev
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: store-ui
-  strategy: {}
   template:
     metadata:
       labels:
         app: store-ui
     spec:
       containers:
-      - image: nginx:alpine
-        name: nginx
-        resources: {}
-status: {}
+        - name: store-ui
+          image: nginxdemos/hello:plain-text
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "150m"
+              memory: "128Mi"
+          ports:
+            - containerPort: 80
