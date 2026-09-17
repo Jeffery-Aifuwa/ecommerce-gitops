@@ -37,3 +37,5 @@ patches:
       - op: replace
         path: /spec/rules/0/host
         value: store.local
+patches:
+  - path: catalog-patch.yaml

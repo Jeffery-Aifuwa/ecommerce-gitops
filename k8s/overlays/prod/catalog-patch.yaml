@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: catalog-api
+          envFrom:
+            - configMapRef:
+                name: store-config
+            - secretRef:
+                name: prod-store-secrets

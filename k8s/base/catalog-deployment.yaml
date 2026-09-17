@@ -43,8 +43,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: store-config
-            - secretRef:
-                name: store-secrets
           resources:
             requests:
               cpu: "50m"
