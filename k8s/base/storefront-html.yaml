@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-ui-content
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Apex Cloud Store</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+      <style>body { font-family: 'Inter', sans-serif; }</style>
+    </head>
+    <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+      <!-- Top Navigation -->
+      <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-extrabold text-white text-lg shadow-lg shadow-orange-500/20">
+            A
+          </div>
+          <span class="text-xl font-bold tracking-tight text-white">Apex<span class="text-orange-500">Store</span></span>
+          <span id="env-badge" class="ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-800 text-orange-400 border border-orange-500/30">
+            K8S CLUSTER
+          </span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 text-xs font-medium bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-lg text-emerald-400">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            GitOps Active (Argo CD)
+          </div>
+          <div class="relative cursor-pointer text-slate-300 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Banner -->
+      <header class="py-12 px-6 max-w-7xl mx-auto w-full text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+          Cloud-Native Hardware & Workstations
+        </h1>
+        <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
+          Production microservices platform backed by K3d, Traefik, Sealed Secrets, Prometheus, and Grafana Loki.
+        </p>
+      </header>
+
+      <!-- Products Grid -->
+      <main class="max-w-7xl mx-auto px-6 pb-16 flex-1 w-full">
+        <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-3">
+          <h2 class="text-lg font-bold text-slate-200">Catalog Inventory</h2>
+          <span class="text-xs text-slate-500">Live Scraped by Prometheus</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between hover:border-orange-500/50 transition">
+            <div>
+              <div class="h-44 w-full rounded-xl bg-slate-700/50 mb-4 flex items-center justify-center text-4xl">⌨️</div>
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-white">Custom Mechanical Keyboard</h3>
+                <span class="text-orange-400 font-bold">$189</span>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">Hot-swappable switches with sound-dampening foam and custom programmable firmware.</p>
+            </div>
+            <button onclick="addToCart()" class="mt-5 w-full py-2.5 bg-orange-600 hover:bg-orange-500 font-semibold text-xs rounded-xl transition text-white">
+              Add to Cart
+            </button>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between hover:border-orange-500/50 transition">
+            <div>
+              <div class="h-44 w-full rounded-xl bg-slate-700/50 mb-4 flex items-center justify-center text-4xl">🖱️</div>
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-white">Wireless Precision Mouse</h3>
+                <span class="text-orange-400 font-bold">$89</span>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">Ultra-low latency wireless sensor with ergonomic grip and dynamic macro mapping.</p>
+            </div>
+            <button onclick="addToCart()" class="mt-5 w-full py-2.5 bg-orange-600 hover:bg-orange-500 font-semibold text-xs rounded-xl transition text-white">
+              Add to Cart
+            </button>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 flex flex-col justify-between hover:border-orange-500/50 transition">
+            <div>
+              <div class="h-44 w-full rounded-xl bg-slate-700/50 mb-4 flex items-center justify-center text-4xl">🖥️</div>
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-white">4K Developer Monitor</h3>
+                <span class="text-orange-400 font-bold">$499</span>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">Color-accurate IPS panel with USB-C 90W power delivery and anti-glare finish.</p>
+            </div>
+            <button onclick="addToCart()" class="mt-5 w-full py-2.5 bg-orange-600 hover:bg-orange-500 font-semibold text-xs rounded-xl transition text-white">
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- Telemetry Footer -->
+      <footer class="border-t border-slate-800 bg-slate-950 py-6 px-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© 2026 Apex Cloud Store Architecture. Deployed with Argo CD & Kustomize.</p>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center px-2 py-1 rounded bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
+              Host: <span id="host-name" class="ml-1 text-slate-200">evaluating...</span>
+            </span>
+          </div>
+        </div>
+      </footer>
+
+      <script>
+        let count = 0;
+        function addToCart() {
+          count++;
+          document.getElementById('cart-count').innerText = count;
+        }
+        const host = window.location.hostname;
+        document.getElementById('host-name').innerText = host || 'cluster-local';
+        const badge = document.getElementById('env-badge');
+        if (host.includes('dev')) {
+          badge.innerText = 'ENV: DEVELOPMENT';
+          badge.className = 'ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-950/80 text-amber-400 border border-amber-500/30';
+        } else {
+          badge.innerText = 'ENV: PRODUCTION';
+          badge.className = 'ml-2 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30';
+        }
+      </script>
+    </body>
+    </html>

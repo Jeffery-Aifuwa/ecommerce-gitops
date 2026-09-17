@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: store-ui
+  labels:
+    app: store-ui
 spec:
   replicas: 1
   selector:
@@ -14,25 +16,20 @@ spec:
     spec:
       containers:
         - name: store-ui
-          image: nginxdemos/hello:plain-text
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
-              cpu: "150m"
-              memory: "128Mi"
+          image: nginx:alpine
           ports:
             - containerPort: 80
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 2
-            periodSeconds: 5
+          volumeMounts:
+            - name: html-volume
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: html-volume
+          configMap:
+            name: storefront-ui-content
