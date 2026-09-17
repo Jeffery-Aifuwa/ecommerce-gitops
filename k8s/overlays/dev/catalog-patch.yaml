@@ -8,7 +8,7 @@ spec:
       containers:
         - name: catalog-api
           args:
-            - "-text=# HELP catalog_items_total Total items in catalog\n# TYPE catalog_items_total gauge\ncatalog_items_total 0\n# HELP catalog_up Catalog service health status\n# TYPE catalog_up gauge\ncatalog_up 0\n"
+            - "-text=# HELP catalog_items_total Total items in catalog\n# TYPE catalog_items_total gauge\ncatalog_items_total 3\n# HELP catalog_up Catalog service health status\n# TYPE catalog_up gauge\ncatalog_up 1\n"
           envFrom:
             - configMapRef:
                 name: store-config
