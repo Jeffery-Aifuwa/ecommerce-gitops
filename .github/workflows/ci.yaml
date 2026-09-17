@@ -15,32 +15,25 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Set up Kustomize
-        uses: imranismail/setup-kustomize@v2
-        with:
-          kustomize-version: "v5.3.0"
-
       - name: Validate Base Manifests
         run: |
           echo "Validating k8s/base..."
-          kustomize build k8s/base > /dev/null
+          kubectl kustomize k8s/base > /dev/null
 
       - name: Validate Dev Overlay
         run: |
           echo "Validating k8s/overlays/dev..."
-          kustomize build k8s/overlays/dev > dev-build.yaml
-          cat dev-build.yaml | grep -q "dev.store.local"
+          kubectl kustomize k8s/overlays/dev > dev-build.yaml
+          grep -q "dev.store.local" dev-build.yaml
 
       - name: Validate Prod Overlay
         run: |
           echo "Validating k8s/overlays/prod..."
-          kustomize build k8s/overlays/prod > prod-build.yaml
-          cat prod-build.yaml | grep -q "store.local"
+          kubectl kustomize k8s/overlays/prod > prod-build.yaml
+          grep -q "store.local" prod-build.yaml
 
-      - name: Run Manifest Syntax Linting (kubeval/dry-run)
-        uses: stefanprodan/kube-tools@v1
-        with:
-          kubectl: 1.30.0
-          command: |
-            kubectl apply --dry-run=client -f dev-build.yaml
-            kubectl apply --dry-run=client -f prod-build.yaml
+      - name: Client-side Dry Run Validation
+        run: |
+          echo "Running client dry-run on generated manifests..."
+          kubectl apply --dry-run=client -f dev-build.yaml
+          kubectl apply --dry-run=client -f prod-build.yaml
