@@ -12,9 +12,20 @@ spec:
       labels:
         app: catalog-api
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
         - name: catalog-api
           image: hashicorp/http-echo:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           args:
             - "-text={\"service\":\"catalog\",\"status\":\"healthy\",\"items\":[\"Keyboard\",\"Mouse\",\"Monitor\"]}"
           envFrom:
