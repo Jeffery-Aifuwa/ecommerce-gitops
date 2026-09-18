@@ -263,10 +263,6 @@ The project defines a `PrometheusRule` for the catalog service.
 
 The `CatalogServiceDown` alert is triggered when `catalog_up == 0` for the configured duration. This converts application health information into an actionable alert.
 
-### Alerting Lifecycle
-![Prometheus Firing Alert](/visuals/prometheus-alerts.png)
-*Dynamic `PrometheusRule` triggering `CatalogServiceDown` alert after synthetic fault injection.*
-
 ## Centralized Logging
 
 The project uses:
