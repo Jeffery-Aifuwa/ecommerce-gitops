@@ -263,6 +263,10 @@ The project defines a `PrometheusRule` for the catalog service.
 
 The `CatalogServiceDown` alert is triggered when `catalog_up == 0` for the configured duration. This converts application health information into an actionable alert.
 
+### Alerting Lifecycle
+![Prometheus Firing Alert](/visuals/prometheus-alerts.png)
+*Dynamic `PrometheusRule` triggering `CatalogServiceDown` alert after synthetic fault injection.*
+
 ## Centralized Logging
 
 The project uses:
@@ -321,6 +325,13 @@ Alert resolved
 ```
 
 The configured alert uses: `catalog_up == 0` with a one-minute firing duration.
+
+### Chaos-Tested Alerting Lifecycle (Prometheus)
+| Pending | Firing | Inactive |
+| --- | --- | --- |
+| ![Prometheus Firing Alert](/visuals/prometheus-alerts-1.png) | ![Prometheus Firing Alert](/visuals/prometheus-alerts-2.png) | ![Prometheus Firing Alert](/visuals/prometheus-alerts-3.png) |
+
+*Dynamic `PrometheusRule` triggering `CatalogServiceDown` alert after synthetic fault injection.*
 
 This validates that the monitoring system could detect the simulated failure and that GitOps could restore the workload to the configuration defined in Git.
 
