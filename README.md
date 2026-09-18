@@ -1,171 +1,408 @@
-# Apex Cloud Store — Production-Grade GitOps Microservices Architecture
+# Apex Cloud Store — GitOps Kubernetes Delivery Platform
 
-An enterprise-ready, declarative Kubernetes platform demonstrating multi-environment GitOps delivery, zero-trust container security, chaos-tested Prometheus/Loki observability, and automated CI hygiene pipelines.
+A Kubernetes-based e-commerce platform built to demonstrate how application deployment, environment management, security, monitoring, logging, and failure recovery can be automated using modern DevOps practices.
 
-## Platform Showcase
+The project uses Git as the source of truth. Instead of manually changing the Kubernetes cluster, configuration is stored in Git and Argo CD continuously reconciles the cluster with the desired state.
 
-### 1. Dual-Environment Storefront UI
-| Production (`http://store.local`) | Development (`http://dev.store.local`) |
-| :---: | :---: |
-| ![Apex Store Production](visuals/storefront-prod.png) | ![Apex Store Development](visuals/storefront-dev.png) |
-| *Tailwind-powered catalog running in `store-prod`* | *Development overlay with live environment detection* |
+The platform includes separate development and production environments, automated CI validation, secret management, network security, autoscaling, monitoring, centralized logging, and a tested failure-recovery workflow.
 
-### 2. GitOps Continuous Delivery (Argo CD)
-![Argo CD Multi-Environment Applications](visuals/argocd-applications.png)
-*Declarative sync tracking both `store-dev` and `store-prod` with automated drift healing.*
+## What Problem Does This Solve?
 
----
+Managing a Kubernetes application manually becomes difficult as the application grows.
 
-### 3. Unified Observability & Log Streaming (Grafana)
-![Grafana Unified Telemetry](visuals/grafana-dashboard.png)
-*Real-time PromQL business gauges (`catalog_items_total`, `catalog_up`) correlated alongside LogQL container log streams via Loki & Promtail.*
+A typical team may need to answer questions like:
 
-### 4. Chaos-Tested Alerting Lifecycle (Prometheus)
-![Prometheus Firing Alert](visuals/prometheus-alerts.png)
-*Dynamic `PrometheusRule` triggering `CatalogServiceDown` alert after synthetic fault injection.*
+- How do we deploy changes consistently?
+- How do we keep development and production configurations separate?
+- How do we know if someone changed something directly in the cluster?
+- How do we prevent secrets from being committed to Git?
+- Which services are allowed to communicate with each other?
+- How do we know when an application becomes unhealthy?
+- How do we investigate a failure?
+- How does the application respond when demand increases?
+- What happens when part of the system fails?
 
-### 5. Automated Pre-Merge CI Hygiene (GitHub Actions)
-![GitHub Actions Pipeline](visuals/github-actions-ci.png)
-*Automated Kustomize compilation, multi-overlay verification, and plain-text secret rejection gate.*
+This project demonstrates a practical approach to those problems using GitOps, Kubernetes, CI, security controls, and observability.
+
+When the desired configuration changes:
+```
+Git → CI validation → Argo CD → Kubernetes
+```
+
+Argo CD continuously checks whether the Kubernetes cluster matches what is defined in Git. If the cluster drifts from the desired configuration, Argo CD can reconcile it automatically.
+
+At the same time:
+```
+Kubernetes → Prometheus + Loki → Grafana
+```
+
+provides visibility into application health, metrics, and logs.
 
 ## System Architecture
 
 ```mermaid
 graph TD
-    %% Define Styles & Palettes
-    classDef dev fill:#eceff1,stroke:#607d8b,stroke-width:2px,color:#263238;
-    classDef git fill:#efebe9,stroke:#5d4037,stroke-width:2px,color:#3e2723;
-    classDef cluster fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
-    classDef ns fill:#ffffff,stroke:#78909c,stroke-width:1px,stroke-dasharray: 5 5,color:#37474f;
-    classDef app fill:#f1f8e9,stroke:#7cb342,stroke-width:2px,color:#33691e;
-    classDef mon fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#e65100;
-    classDef view fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#4a148c;
 
-    %% Developer Layer
-    subgraph DevMachine ["Developer Machine"]
-        Dev[Engineer Workstation]
-    end
-    class DevMachine,Dev dev;
+    Dev[Developer]
 
-    %% Source Control & CI Layer
-    subgraph RemoteGit ["Version Control & Validation"]
-        Repo["GitHub Repository<br/>(Base + Dev/Prod Overlays)"]
-        CI["GitHub Actions CI<br/>- Kustomize Compile<br/>- SealedSecret Check"]
-        Repo -->|2. CI Gate| CI
-    end
-    class RemoteGit,Repo,CI git;
+    Git[GitHub Repository<br/>Base + Dev/Prod Overlays]
+    CI[GitHub Actions<br/>Kustomize Validation<br/>Secret Checks]
 
-    %% External Connections
-    Dev -->|1. Git Push| Repo
-    Dev -->|4. Scrape & Visualize| Grafana
+    Argo[Argo CD<br/>GitOps Reconciliation]
 
-    %% Kubernetes Cluster Layer
-    subgraph K8sCluster ["Kubernetes Cluster"]
-        
-        Argo["Argo CD Controller<br/>(Reconciliation Engine)"]
+    DevNS[store-dev]
+    ProdNS[store-prod]
 
-        subgraph DevNS ["Namespace: store-dev"]
-            direction TB
-            DevUI["store-ui"]
-            DevAPI["catalog-api"]
-            DevConfigs["Dev Policies<br/>- NetworkPolicy<br/>- HPA / PDB<br/>- SealedSecret"]
-        end
-        class DevNS ns;
-        class DevUI,DevAPI,DevConfigs app;
+    DevUI[Store UI]
+    DevAPI[Catalog API]
 
-        subgraph ProdNS ["Namespace: store-prod"]
-            direction TB
-            ProdUI["store-ui"]
-            ProdAPI["catalog-api"]
-            ProdConfigs["Prod Policies<br/>- NetworkPolicy<br/>- HPA / PDB<br/>- SealedSecret"]
-        end
-        class ProdNS ns;
-        class ProdUI,ProdAPI,ProdConfigs app;
+    ProdUI[Store UI]
+    ProdAPI[Catalog API]
 
-        subgraph MonNS ["Namespace: monitoring"]
-            direction TB
-            Prom["Prometheus Operator<br/>(ServiceMonitor / Rules)"]
-            Loki["Grafana Loki & Promtail<br/>(Log Aggregator)"]
-        end
-        class MonNS ns;
-        class Prom,Loki mon;
+    Security[NetworkPolicies<br/>HPA / PDB<br/>Sealed Secrets]
 
-    end
-    class K8sCluster cluster;
-    class Argo mon;
+    Monitoring[Prometheus Operator]
+    Logging[Loki + Promtail]
+    Grafana[Grafana]
 
-    %% GitOps Sync Delivery
-    CI -->|3. Auto-Sync| Argo
-    Argo -->|Deploy Dev Overlay| DevNS
-    Argo -->|Deploy Prod Overlay| ProdNS
+    Dev -->|Git push| Git
+    Git -->|Validation| CI
+    Git -->|Desired state| Argo
 
-    %% Telemetry Scraping
-    DevNS -->|Scrapes Telemetry| Prom
-    DevNS -->|Streams Logs| Loki
-    ProdNS -->|Scrapes Telemetry| Prom
-    ProdNS -->|Streams Logs| Loki
+    Argo -->|Sync| DevNS
+    Argo -->|Sync| ProdNS
 
-    %% Visualization View
-    subgraph Observability ["Core Monitoring Hub"]
-        Grafana["Grafana Unified View<br/>- PromQL Metrics<br/>- LogQL Stream Tail"]
-    end
-    class Observability,Grafana view;
+    DevNS --> DevUI
+    DevNS --> DevAPI
 
-    Prom -->|Metrics Feed| Grafana
-    Loki -->|Logs Feed| Grafana
+    ProdNS --> ProdUI
+    ProdNS --> ProdAPI
+
+    DevNS --> Security
+    ProdNS --> Security
+
+    DevNS -->|Metrics| Monitoring
+    ProdNS -->|Metrics| Monitoring
+
+    DevNS -->|Logs| Logging
+    ProdNS -->|Logs| Logging
+
+    Monitoring --> Grafana
+    Logging --> Grafana
 ```
 
-## Tech Stack & Engineering Pillars
+## How the Platform Works
 
-| Domain | Technology | Core Responsibilities |
+### 1. Developer changes the configuration  
+Application and infrastructure configuration is stored in Git.  
+
+The repository uses a Kustomize base and separate overlays for development and production.
+
+```
+k8s/
+├── base/
+├── overlays/
+│   ├── dev/
+│   └── prod/
+``` 
+
+This allows common Kubernetes configuration to be reused while environment-specific settings remain separate.
+
+### 2. GitHub Actions validates the changes
+
+Before configuration is accepted, GitHub Actions performs automated checks.  
+The CI workflow validates:
+
+- Kustomize manifests
+- Development overlay compilation
+- Production overlay compilation
+- Kubernetes configuration
+- Secret handling
+
+The pipeline also checks for plaintext Kubernetes `Secret` manifests.
+
+The goal is to catch configuration and security mistakes before they reach the cluster.
+
+### Automated Pre-Merge CI Hygiene (GitHub Actions)
+![GitHub Actions Pipeline](/visuals/github-actions-ci.png)
+*Automated Kustomize compilation, multi-overlay verification, and plain-text secret rejection gate.*
+
+
+### 3. Argo CD deploys the desired state
+
+Argo CD watches the Git repository and compares the configuration in Git with what is running inside Kubernetes.  
+
+When the desired state changes, Argo CD synchronizes the appropriate environment.  
+
+This gives the deployment process a clear flow:
+``` 
+Git change
+    ↓
+GitHub Actions validation
+    ↓
+Argo CD detects desired-state change
+    ↓
+Argo CD synchronizes Kubernetes
+    ↓
+Application reaches desired state
+```
+
+Argo CD is also configured for automated synchronization and self-healing.
+
+The cluster does not depend on someone manually running kubectl apply every time a configuration changes.
+
+### GitOps Continuous Delivery (Argo CD)
+![Argo CD Multi-Environment Applications](/visuals/argocd-applications.png)
+*Declarative sync tracking both `store-dev` and `store-prod` with automated drift healing.*
+
+## Multi-Environment Kubernetes
+
+The application runs in separate namespaces:
+
+- store-dev  
+- store-prod
+
+Both environments share common configuration through Kustomize while allowing environment-specific configuration through overlays.
+
+This demonstrates how the same application can be managed consistently across environments without duplicating the entire Kubernetes configuration.
+
+### Dual-Environment Storefront UI
+| Production (`http://store.local`) | Development (`http://dev.store.local`) |
+| :---: | :---: |
+| ![Apex Store Production](/visuals/storefront-prod.png) | ![Apex Store Development](/visuals/storefront-dev.png) |
+| *Tailwind-powered catalog running in `store-prod`* | *Development overlay with live environment detection* |
+
+## Security
+
+Security was treated as part of the platform rather than something added at the end.
+
+### Sealed Secrets
+
+Sensitive values should not be stored as plaintext Kubernetes Secrets in Git. This project uses Bitnami Sealed Secrets.
+
+The workflow is:
+```
+Secret value
+    ↓
+kubeseal
+    ↓
+Encrypted SealedSecret
+    ↓
+Git
+    ↓
+Kubernetes
+    ↓
+Decrypted Secret inside cluster
+```
+
+The encrypted representation can therefore be version-controlled without committing the original secret value.
+
+The cluster's private decryption key remains inside the cluster.
+
+## NetworkPolicies
+
+Kubernetes NetworkPolicies restrict which workloads are allowed to communicate with each other. For example, the `catalog-api` does not simply accept traffic from every workload in the cluster.
+
+Traffic is explicitly allowed from the components that need access, including the store UI and the monitoring system. This provides an additional layer of isolation between workloads.
+
+## Reliability and Scaling
+### Horizontal Pod Autoscaler
+
+The application includes Kubernetes Horizontal Pod Autoscaling (HPA).
+
+The purpose is to allow Kubernetes to adjust the number of application replicas based on resource utilization rather than requiring a fixed replica count.
+
+Conceptually:
+```
+Low workload
+    ↓
+Fewer replicas
+
+Higher workload
+    ↓
+More replicas
+```
+
+## Pod Disruption Budget
+
+A Pod Disruption Budget (PDB) is also configured.
+
+The purpose is to protect application availability during planned disruptions such as node maintenance.
+
+It helps ensure that Kubernetes does not voluntarily disrupt too many application replicas at the same time.
+
+Together, HPA and PDB address different concerns:
+
+| Component | Purpose |
+|---|---|
+| HPA | Adjusts capacity based on workload |
+| PDB | Protects availability during voluntary disruptions |
+
+## Observability
+
+A platform is difficult to operate if you cannot see what is happening inside it. This project includes both metrics and logs.
+
+### Prometheus
+
+Prometheus collects application metrics from Kubernetes workloads.
+
+The project uses the Prometheus Operator and `ServiceMonitor` resources to define scrape targets declaratively.
+
+The application exposes metrics including:
+
+- catalog_items_total
+- catalog_up
+
+This allows the monitoring system to answer questions such as:
+
+Is the catalog service healthy? and How many catalog items are currently available?
+
+### Prometheus Alerting
+
+The project defines a `PrometheusRule` for the catalog service.
+
+The `CatalogServiceDown` alert is triggered when `catalog_up == 0` for the configured duration. This converts application health information into an actionable alert.
+
+## Centralized Logging
+
+The project uses:
+
+- Grafana Loki for log storage
+- Promtail for collecting container logs
+- Grafana for visualization
+
+Instead of inspecting individual Kubernetes pods manually, logs from the workloads can be viewed centrally.
+
+Logs can also be filtered using labels such as:
+
+- namespace
+- app
+- container
+
+This makes troubleshooting easier when multiple workloads are running across the cluster.
+
+## Grafana
+
+Grafana provides a unified view of the platform.
+
+It brings together:
+
+### Metrics
+
+Using PromQL, dashboards can display application and infrastructure metrics.
+
+### Logs
+
+Using LogQL, container logs collected by Loki can be searched and viewed.
+
+This allows application health and application logs to be investigated from the same monitoring interface.
+
+### Unified Observability & Log Streaming (Grafana)
+![Grafana Unified Telemetry](/visuals/grafana-dashboard.png)
+*Real-time PromQL business gauges (`catalog_items_total`, `catalog_up`) correlated alongside LogQL container log streams via Loki & Promtail.*
+
+## Failure and Recovery Testing
+
+Tested monitoring and GitOps recovery workflow by introducing a failure condition into the development environment.
+
+The observed lifecycle was:
+```
+Target degraded
+      ↓
+Alert pending
+      ↓
+Alert firing
+      ↓
+GitOps reconciliation
+      ↓
+Desired state restored
+      ↓
+Alert resolved
+```
+
+The configured alert uses: `catalog_up == 0` with a one-minute firing duration.
+
+This validates that the monitoring system could detect the simulated failure and that GitOps could restore the workload to the configuration defined in Git.
+
+## CI/CD vs GitOps
+
+An important design decision in this project is separating CI validation from CD/reconciliation.
+
+### GitHub Actions
+
+GitHub Actions answers:
+
+“Is this configuration valid and safe to merge?”
+
+It performs validation and checks before changes are accepted.
+
+### Argo CD
+
+Argo CD answers:
+
+“Does the Kubernetes cluster match the desired state stored in Git?”
+
+This separation gives each tool a clear responsibility:
+
+```
+GitHub Actions
+      ↓
+Validate
+
+Argo CD
+      ↓
+Reconcile
+
+Kubernetes
+      ↓
+Run
+``` 
+
+## Technology Stack
+| Area | Technology | Purpose |
 |---|---|---|
-| Orchestration | Kubernetes (k3d) | Local multi-node cluster runtime with Traefik ingress controller |
-| Package Management | Kustomize | DRY configuration using a single base and parameterized dev/prod overlays |
-| Continuous Delivery | Argo CD | Declarative GitOps control plane with automated self-healing and drift correction |
-| Continuous Integration | GitHub Actions | Automated schema validation, multi-overlay dry-runs, and unencrypted secret linting |
-| Secret Management | Bitnami Sealed Secrets | Asymmetric cryptography enabling safe GitOps versioning of sensitive credentials |
-| Container Security | Kubernetes NetworkPolicies | Zero-trust intra-cluster firewalling isolating backend services from unauthorized pods |
-| Metrics & Alerting | Prometheus Operator | Dynamic CRD discovery via ServiceMonitor and declarative PrometheusRule alerting |
-| Centralized Logging | Grafana Loki + Promtail | Low-overhead label-indexed log aggregation across all namespaces and nodes |
-| Unified Visualization | Grafana | Integrated dashboard visualizing PromQL business gauges and real-time LogQL streams |
+| Container orchestration | Kubernetes / k3d | Run the application workloads |
+| Configuration management | Kustomize| Reuse configuration across environments |
+| GitOps CD | Argo CD | Reconcile Kubernetes with Git |
+| CI | GitHub Actions | Validate Kubernetes configuration |
+| Secret management | Sealed Secrets | Securely manage secrets in GitOps |
+| Network security | Kubernetes NetworkPolicies | Restrict workload communication |
+| Autoscaling | HPA	| Dynamically adjust replicas |
+| Availability |PDB	| Protect replicas during disruption |
+| Metrics | Prometheus Operator	| Collect and manage metrics |
+| Alerting | PrometheusRule | Define application alerts |
+| Logging | Grafana Loki | Centralize container logs |
+| Log collection | Promtail | Collect and forward logs |
+| Visualization | Grafana | Display metrics and logs |
+| Ingress | Traefik | Route traffic into the cluster |
 
-## Security & Resilience Highlights
-- Zero-Trust Network Policies: catalog-api rejects all inbound cluster traffic except explicit requests from store-ui and the Prometheus scraper running in the monitoring namespace.
+## Running the Project
 
-- Sealed Secrets Engine: Secrets are encrypted client-side using kubeseal with cluster public keys. The private decrypting key never leaves the cluster runtime.
+The project is designed to run locally using k3d.
 
-- Defense-in-Depth CI Checks: Pre-merge GitHub Actions enforce a negative regex check ensuring raw kind: Secret manifests can never be committed.
+### 1. Configure local hostnames
 
-- Resilience Engineering: Configured Horizontal Pod Autoscaling (HPA) alongside Pod Disruption Budgets (PDB) to preserve minimum quorum availability during cluster node drains.
+Add the following entries to your hosts file:
 
-## Observability & Chaos Validation
+- 127.0.0.1 dev.store.local
+- 127.0.0.1 store.local
 
-- ServiceMonitor Scrape Targets: Prometheus queries backend services dynamically via Kubernetes custom resource definitions.
+On Windows:
 
-- Declarative Alerting: Deployed CatalogServiceDown (expr: catalog_up == 0, for: 1m) triggering automated severity alerts.
+`C:\Windows\System32\drivers\etc\hosts`
 
-- Chaos Engineering Walkthrough: Validated the alert lifecycle by injecting synthetic fault payloads in store-dev:
+On Linux/macOS:
 
-    `Target Degraded` → `Alert Pending (15s)` → `Alert Firing (60s)` → `GitOps Revert` → `Auto-Resolved`
+`/etc/hosts`
 
-- LogQL Streaming: Real-time container stdout ingestion indexed by cluster labels (namespace, app, container).
+### 2. Access the environments
 
-## Quickstart & Verification
-
-1. Ingress Hosts Mapping
-- Add the following local DNS records to your /etc/hosts (Linux/macOS) or C:\Windows\System32\drivers\etc\hosts (Windows):
-
-    ```
-    127.0.0.1  dev.store.local
-    127.0.0.1  store.local
-    ``` 
-
-2. Access Environments
 - Production Storefront: http://store.local
 
 - Development Storefront: http://dev.store.local
 
-- Argo CD UI: http://localhost:8443
+- Argo CD UI: https://localhost:8443  
+Port-forwarded: `kubectl port-forward -n argocd svc/argocd-server 8443:443`
 
 - Grafana Dashboard: http://localhost:3000 (User: admin)
 
